@@ -8,6 +8,7 @@ import (
 )
 
 type HandlerWithErrFunc = func(*gin.Context) error
+type HandlerFunc = HandlerWithErrFunc
 
 func HandlerWithErr(h HandlerWithErrFunc) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -20,6 +21,35 @@ func HandlerWithErr(h HandlerWithErrFunc) gin.HandlerFunc {
 
 			ctx.AbortWithStatusJSON(ginErr.Status, ginErr)
 		}
+	}
+}
+
+func Recovery() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		defer func() {
+			err := recover()
+			if err == nil {
+				return
+			}
+
+			errResponse := recoveredErrToErrorResponse(err)
+			errResponse.AbortJSON(c)
+		}()
+
+		c.Next()
+	}
+}
+
+func recoveredErrToErrorResponse(e any) ErrorResponse {
+	switch err := e.(type) {
+	case ErrorResponse:
+		return err
+	case error:
+		return ServerError(err.Error())
+	case string:
+		return ServerError(err)
+	default:
+		return ServerError("internal server error")
 	}
 }
 
