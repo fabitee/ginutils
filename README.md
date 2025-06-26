@@ -1,5 +1,7 @@
 # Gin Utils
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/fabitee/ginutils.svg)](https://pkg.go.dev/github.com/fabitee/ginutils)
+
 These are utilities for the gin web library.
 
 Some features:
